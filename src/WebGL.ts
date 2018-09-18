@@ -3,11 +3,15 @@ import {
     Clock,
     Color,
     DirectionalLight,
+    GridHelper,
     OrthographicCamera,
+    PerspectiveCamera,
     Scene,
     Vector3,
-    WebGLRenderer
+    WebGLRenderer,
 } from 'three';
+
+import { Subjects } from './Subjects';
 
 export class WebGl {
 
@@ -15,12 +19,12 @@ export class WebGl {
 
     protected clock: Clock;
     protected origin: Vector3;
-    protected camera: OrthographicCamera;
+    protected camera: OrthographicCamera | PerspectiveCamera;
     protected scene: Scene;
     protected light: DirectionalLight;
     protected renderer: WebGLRenderer;
 
-    protected sceneSubjects: any;
+    protected subjects: Subjects;
 
     public constructor(container: HTMLElement) {
         this.canvas = document.createElement('canvas');
@@ -34,14 +38,18 @@ export class WebGl {
         this.createRenderer();
         this.createCamera();
 
+        this.subjects = new Subjects(this.scene);
+
         this.bindEventListeners();        
     }
 
     public render() {
         requestAnimationFrame(this.render.bind(this));
+        this.camera.lookAt(0, 0, 0);
+        const delta = this.clock.getDelta();
 
-        // const delta = this.clock.getDelta();
-
+        this.subjects.update(delta);
+        
         this.renderer.render(this.scene, this.camera);
     }
 
@@ -49,6 +57,12 @@ export class WebGl {
         this.scene = new Scene();
         this.scene.add(new AmbientLight('#F4F4F4'));
         this.scene.background = new Color('#F4F4F4');
+
+        const size = 20;
+        const divisions = 20;
+
+        const gridHelper = new GridHelper( size, divisions );
+        this.scene.add( gridHelper );
     }
 
     protected createLight() {
@@ -71,8 +85,10 @@ export class WebGl {
     protected createCamera() {
         const { width, height } = this.canvas;
 
-        this.camera = new OrthographicCamera(width/-2, width/2, height/2, height/-2, 1, 500);
-        this.camera.position.z = 50;
+        // this.camera = new OrthographicCamera(width/-2, width/2, height/2, height/-2, 0, 1000);
+        this.camera = new PerspectiveCamera(45, width/height, 1, 1000);
+        this.camera.position.set(40, 10, 0);
+        this.camera.lookAt(0, 0, 0);
     }
 
     protected bindEventListeners() {
@@ -84,5 +100,4 @@ export class WebGl {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.camera.updateProjectionMatrix();
     }
-
 }

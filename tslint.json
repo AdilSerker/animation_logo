@@ -1,6 +1,7 @@
 {
   "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
   "linterOptions": {
+    "interface-over-type-literal": false,
     "exclude": [
       "config/**/*.js",
       "node_modules/**/*.ts",
@@ -13,4 +14,5 @@
   "jsRules": {
     "no-console": false
   }
+  
 }
