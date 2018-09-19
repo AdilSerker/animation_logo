@@ -1,10 +1,9 @@
+import { EventEmitter } from 'events';
 import {
     DoubleSide,
-    Euler,
     Mesh,
     MeshPhysicalMaterial,
     PlaneGeometry,
-    // Quaternion,
     Vector3,
 } from "three";
 
@@ -29,6 +28,7 @@ interface IPlaneParams {
     spin?: boolean;
     speed?: number;
     position?: Vector3;
+    isFirst?: boolean
 }
 
 
@@ -42,25 +42,66 @@ export class Plane {
     protected speed: number;
     protected angle: number;
 
+    protected isFirst: boolean;
+
+    protected t0: number;
+    protected duration: number;
+
     protected position: Vector3;
 
-    public constructor({ mesh, axis, spin = true, speed = 1, position }: IPlaneParams) {
+    protected event: EventEmitter;
+
+    public constructor({
+            mesh,
+            axis,
+            spin = false,
+            speed = 1,
+            position,
+            isFirst = false
+        }: IPlaneParams,
+        event: EventEmitter
+    ) {
         this.mesh = mesh && mesh.clone() || this.getMesh();
         this.axis = axis || this.randomAxis();
         this.spin = spin;
         this.speed = speed;
+        this.duration = speed * 100 + 1000;
+        if (isFirst) {
+            this.isFirst = isFirst;
+            this.mesh.rotation[this.axis] = Math.PI / 2;
+        }
+        this.event = event;
     }
 
     public turn(delta: number): void {
-        if (!delta) {
-            const euler = new Euler();
-
-            console.log(euler);
+        if (!this.t0) {
+            this.t0 = Date.now();
         }
-        const spin = (this.spin) ? 1 : -1;
-        this.mesh.rotateOnAxis(new Vector3(1,0,0), this.speed * delta * spin * Math.PI / 2);
-        // console.log(this.mesh.rotation);
+        let timeFraction = (Date.now() - this.t0) / this.duration;
+        if (timeFraction > 1) {
+            timeFraction = 1;
+            this.isTurned = true;
+            
+        }
+        if (this.isFirst) {
+    
+            if (this.isTurned) {
+                this.event.emit('addPlane', new Plane({ mesh: this.mesh, axis: Axis.X }, this.event));
+            }
+        } else {
+            this.mesh.rotation[this.axis] = Math.PI / 2 + Math.PI * this.circ(timeFraction) * this.getSpin();
+            if (this.isTurned) {
+                this.event.emit('addPlane', new Plane({ mesh: this.mesh }, this.event));
+            }
+        }
     }
+
+    protected circ(timeFraction: number) { return timeFraction*(2-timeFraction) }
+
+    protected getSpin(): number {
+        return (this.spin) ? 1 : -1;
+    }
+
 
     protected randomAxis(): Axis {
         const MIN = 1;
@@ -76,8 +117,6 @@ export class Plane {
         const material = new MeshPhysicalMaterial(GREEN_MATERIAL);
         const mesh = new Mesh(geometry, material);
 
-        
-        mesh.rotation.x = Math.PI / 2;
         mesh.position.set(0, 0, 0);
 
         return mesh;

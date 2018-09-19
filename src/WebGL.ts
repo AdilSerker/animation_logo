@@ -87,7 +87,7 @@ export class WebGl {
 
         // this.camera = new OrthographicCamera(width/-2, width/2, height/2, height/-2, 0, 1000);
         this.camera = new PerspectiveCamera(45, width/height, 1, 1000);
-        this.camera.position.set(40, 10, 0);
+        this.camera.position.set(30, 15, 30);
         this.camera.lookAt(0, 0, 0);
     }
 
