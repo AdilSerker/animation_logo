@@ -1,36 +1,34 @@
 import {
     AmbientLight,
-    Clock,
     Color,
     DirectionalLight,
     GridHelper,
     OrthographicCamera,
-    PerspectiveCamera,
     Scene,
     Vector3,
     WebGLRenderer,
 } from 'three';
 
-import { Subjects } from './Subjects';
+import { AnimationFrame } from './AnimationFrame';
 
-export class WebGl {
+export class Canvas {
 
     protected canvas: HTMLCanvasElement;
 
-    protected clock: Clock;
+    protected timeStart: number;
     protected origin: Vector3;
-    protected camera: OrthographicCamera | PerspectiveCamera;
+    protected camera: OrthographicCamera;
     protected scene: Scene;
     protected light: DirectionalLight;
     protected renderer: WebGLRenderer;
 
-    protected subjects: Subjects;
+    protected frame: AnimationFrame;
 
     public constructor(container: HTMLElement) {
         this.canvas = document.createElement('canvas');
         container.appendChild(this.canvas);
-
-        this.clock = new Clock();
+        this.canvas.height = 600;
+        this.canvas.width = 600;
         this.origin = new Vector3(0, 0, 0);
 
         this.createScene();
@@ -38,19 +36,25 @@ export class WebGl {
         this.createRenderer();
         this.createCamera();
 
-        this.subjects = new Subjects(this.scene);
+        this.frame = new AnimationFrame(this.scene);
 
         this.bindEventListeners();        
     }
 
     public render() {
         requestAnimationFrame(this.render.bind(this));
+        if (!this.timeStart) {
+            this.timeStart = Date.now();
+        }
         this.camera.lookAt(0, 0, 0);
-        const delta = this.clock.getDelta();
-
-        this.subjects.update(delta);
+        const time = (Date.now() - this.timeStart);
+        this.frame.update(time);
         
         this.renderer.render(this.scene, this.camera);
+    }
+
+    protected easeOutExpo(pos: number) {
+        return (pos===1) ? 1 : -Math.pow(2, -10 * pos) + 1;
     }
 
     protected createScene() {
@@ -85,9 +89,9 @@ export class WebGl {
     protected createCamera() {
         const { width, height } = this.canvas;
 
-        // this.camera = new OrthographicCamera(width/-2, width/2, height/2, height/-2, 0, 1000);
-        this.camera = new PerspectiveCamera(45, width/height, 1, 1000);
-        this.camera.position.set(30, 15, 30);
+        this.camera = new OrthographicCamera(width/-2, width/2, height/2, height/-2, -20, 100);
+        this.camera.position.set(10, 5, 10);
+        this.camera.zoom = 20;
         this.camera.lookAt(0, 0, 0);
     }
 
@@ -97,7 +101,8 @@ export class WebGl {
     }
 
     protected resizeCanvas() {
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        // this.renderer.setSize(window.innerWidth, window.innerHeight);
+        // this.camera.setViewOffset(600, 600, 300, 300, 600, 600);
         this.camera.updateProjectionMatrix();
     }
 }

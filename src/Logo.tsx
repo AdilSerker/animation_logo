@@ -1,12 +1,12 @@
 import * as React from 'react';
+import { Canvas } from './Canvas';
 import './Logo.css';
-import { WebGl } from './WebGL';
 
 class Logo extends React.Component {
 	public componentDidMount() {
 		const container = document.getElementById('Logo');
 		if (container) {
-			const logo = new WebGl(container);
+			const logo = new Canvas(container);
 			logo.render();
 		}
 	}

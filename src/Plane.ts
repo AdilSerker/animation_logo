@@ -4,7 +4,7 @@ import {
     Mesh,
     MeshPhysicalMaterial,
     PlaneGeometry,
-    Vector3,
+    Vector2
 } from "three";
 
 const GREEN_MATERIAL = {
@@ -22,86 +22,112 @@ export enum Axis {
     Z = 'z'
 }
 
+export enum PlaneType {
+    XY = 'xy',
+    XZ = 'xz',
+    YZ = 'zy'
+}
+
 interface IPlaneParams {
-    mesh?: Mesh;
+    planeType: PlaneType;
+    depth: number;
+    position: Vector2;
+    pi?: boolean;
     axis?: Axis;
+    simmetry?: boolean;
     spin?: boolean;
-    speed?: number;
-    position?: Vector3;
     isFirst?: boolean
 }
 
+interface IMeshParams {
+    planeType: PlaneType;
+    depth: number;
+    position: Vector2;
+    axis?: Axis;
+    simmetry?: boolean;
+}
 
 export class Plane {
     public isTurned: boolean;
-
     public mesh: Mesh;
 
+    protected planeType: PlaneType;
+    protected depth: number;
+    protected position: Vector2;
     protected axis: Axis;
-    protected spin: boolean;
-    protected speed: number;
-    protected angle: number;
+    protected spin: number;
+    protected pi: boolean;
 
     protected isFirst: boolean;
+    protected simmetry: boolean;
 
     protected t0: number;
     protected duration: number;
-
-    protected position: Vector3;
-
+    
     protected event: EventEmitter;
+    
+    protected timingFunction: boolean;
 
+    protected params: IPlaneParams;
+    
     public constructor({
-            mesh,
-            axis,
-            spin = false,
-            speed = 1,
+            planeType,
+            depth,
             position,
-            isFirst = false
+            axis,
+            simmetry,
+            spin,
+            isFirst = false,
+            pi
         }: IPlaneParams,
         event: EventEmitter
     ) {
-        this.mesh = mesh && mesh.clone() || this.getMesh();
+        this.mesh = this.getMesh({ axis, planeType, depth, position, simmetry });
         this.axis = axis || this.randomAxis();
-        this.spin = spin;
-        this.speed = speed;
-        this.duration = speed * 100 + 1000;
-        if (isFirst) {
-            this.isFirst = isFirst;
-            this.mesh.rotation[this.axis] = Math.PI / 2;
-        }
+        this.spin = spin ? 1 : spin === false ? -1 : this.getRandomSpin();
+        this.duration = 500;
+        this.isFirst = isFirst;
         this.event = event;
+        this.timingFunction = true;
+
+        this.params = {
+            axis,
+            depth,
+            pi,
+            planeType,
+            position,
+            simmetry
+        }
     }
 
-    public turn(delta: number): void {
-        if (!this.t0) {
-            this.t0 = Date.now();
-        }
-        let timeFraction = (Date.now() - this.t0) / this.duration;
+    public turn(time: number): void {
+        this.t0 = this.t0 || time;
+
+        const timeFraction = (time - this.t0) / this.duration;
         if (timeFraction > 1) {
-            timeFraction = 1;
-            this.isTurned = true;
-            
+            if (!this.isTurned) {
+                this.event.emit('turned');
+                this.isTurned = true;
+            }
         }
-        if (this.isFirst) {
-    
-            if (this.isTurned) {
-                this.event.emit('addPlane', new Plane({ mesh: this.mesh, axis: Axis.X }, this.event));
-            }
-        } else {
-            this.mesh.rotation[this.axis] = Math.PI / 2 + Math.PI * this.circ(timeFraction) * this.getSpin();
-            if (this.isTurned) {
-                this.event.emit('addPlane', new Plane({ mesh: this.mesh }, this.event));
-            }
+        if (!this.isFirst) {
+            this.mesh.rotation[this.axis] = 
+                (this.pi ? Math.PI : this.spin > 0 ? Math.PI / 2 : 3 * Math.PI / 2) *
+                (this.timingFunction ? this.easeInExpo(timeFraction) : this.easeOutExpo(timeFraction));
         }
     }
 
-    protected circ(timeFraction: number) { return timeFraction*(2-timeFraction) }
-
-    protected getSpin(): number {
-        return (this.spin) ? 1 : -1;
+    protected easeInExpo(pos: number) {
+        return (pos===0) ? 0 : Math.pow(2, 10 * (pos - 1));
     }
 
+    protected easeOutExpo(pos: number) {
+        return (pos===1) ? 1 : -Math.pow(2, -10 * pos) + 1;
+    }
+        
+    protected getRandomSpin(): number {
+        return (Math.random() * 2 - 1) > 0 ? 1 : -1;
+    }
 
     protected randomAxis(): Axis {
         const MIN = 1;
@@ -111,14 +137,49 @@ export class Plane {
             (rand === 2) ? Axis.Y : Axis.Z
     }
 
-    protected getMesh(): Mesh {
+    protected getMesh({ planeType, depth, position, simmetry, axis }: IMeshParams): Mesh {
         const geometry = new PlaneGeometry(10, 10);
-        geometry.translate(5, 5, 0);
         const material = new MeshPhysicalMaterial(GREEN_MATERIAL);
         const mesh = new Mesh(geometry, material);
+        switch (planeType) {
+            case PlaneType.XY:
+                geometry.translate(
+                    position.x * 5,
+                    position.y * 5,
+                    0
+                );
+                geometry.rotateX(Math.PI / 2);
+                mesh.position.y = depth * 10;
+                break;
 
-        mesh.position.set(0, 0, 0);
+            case PlaneType.YZ:
+                geometry.translate(
+                    position.x * 5,
+                    (position.y > 0 ? 1 : -1) * 5,
+                    0
+                );
+                geometry.rotateY(Math.PI / 2);
+                mesh.position.x = depth * 10;
+                if (Math.abs(position.y) > 1) {
+                    mesh.position.y = (position.y > 0 ? 1 : -1) * 10;
+                }
+                break;
 
+            case PlaneType.XZ:
+                geometry.translate(
+                    position.x * 5,
+                    (position.y > 0 ? 1 : -1) * 5,
+                    0
+                );
+                mesh.position.z = depth * 10;
+                if (Math.abs(position.y) > 1) {
+                    mesh.position.y = (position.y > 0 ? 1 : -1) * 10;
+                }
+                break;
+            default:
+                break;
+        }
+        
         return mesh;
     }
 }

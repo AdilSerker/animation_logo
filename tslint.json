@@ -2,6 +2,7 @@
   "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
   "linterOptions": {
     "interface-over-type-literal": false,
+    "no-conditional-assignment": true,
     "exclude": [
       "config/**/*.js",
       "node_modules/**/*.ts",
@@ -9,10 +10,12 @@
     ]
   },
   "rules": {
-    "no-console": false
+    "no-console": false,
+    "no-conditional-assignment": true
   },
   "jsRules": {
-    "no-console": false
+    "no-console": false,
+    "no-conditional-assignment": true
   }
   
 }
