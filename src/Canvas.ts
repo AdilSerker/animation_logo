@@ -53,8 +53,8 @@ export class Canvas {
         this.renderer.render(this.scene, this.camera);
     }
 
-    protected easeOutExpo(pos: number) {
-        return (pos===1) ? 1 : -Math.pow(2, -10 * pos) + 1;
+    protected easeOutExpo(t: number) {
+        return (t===1) ? 1 : -Math.pow(2, -10 * t) + 1;
     }
 
     protected createScene() {
