@@ -5,6 +5,7 @@ import {
     GridHelper,
     OrthographicCamera,
     Scene,
+    SpotLight,
     Vector3,
     WebGLRenderer,
 } from 'three';
@@ -19,7 +20,7 @@ export class Canvas {
     protected origin: Vector3;
     protected camera: OrthographicCamera;
     protected scene: Scene;
-    protected light: DirectionalLight;
+    protected light: DirectionalLight | SpotLight;
     protected renderer: WebGLRenderer;
 
     protected frame: AnimationFrame;
@@ -54,7 +55,7 @@ export class Canvas {
     }
 
     protected easeOutExpo(t: number) {
-        return (t===1) ? 1 : -Math.pow(2, -10 * t) + 1;
+        return (t === 1) ? 1 : -Math.pow(2, -10 * t) + 1;
     }
 
     protected createScene() {
@@ -70,8 +71,8 @@ export class Canvas {
     }
 
     protected createLight() {
-        this.light = new DirectionalLight('#fff', 1);
-        this.light.position.set(-1, -1, -1).normalize();
+        this.light = new SpotLight('#fff', 1);
+        this.light.position.set(30, -30, -1);
         this.scene.add(this.light);
     }
 
@@ -91,7 +92,7 @@ export class Canvas {
 
         this.camera = new OrthographicCamera(width/-2, width/2, height/2, height/-2, -20, 100);
         this.camera.position.set(10, 5, 10);
-        this.camera.zoom = 20;
+        this.camera.zoom = 15;
         this.camera.lookAt(0, 0, 0);
     }
 

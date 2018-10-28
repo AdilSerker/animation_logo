@@ -6,6 +6,8 @@ import {
     PlaneGeometry,
     Vector2
 } from "three";
+import { getParamsById } from './getParamsById';
+import { Axis, IMeshParams, IPlaneParams, PlaneType } from './types';
 
 const GREEN_MATERIAL = {
     clearCoat: 0,
@@ -15,37 +17,6 @@ const GREEN_MATERIAL = {
     roughness: 1,
     side: DoubleSide
 };
-
-export enum Axis {
-    X = 'x',
-    Y = 'y',
-    Z = 'z'
-}
-
-export enum PlaneType {
-    XY = 'xy',
-    XZ = 'xz',
-    YZ = 'zy'
-}
-
-interface IPlaneParams {
-    planeType: PlaneType;
-    depth: number;
-    position: Vector2;
-    pi?: boolean;
-    axis?: Axis;
-    simmetry?: boolean;
-    spin?: boolean;
-    isFirst?: boolean
-}
-
-interface IMeshParams {
-    planeType: PlaneType;
-    depth: number;
-    position: Vector2;
-    axis?: Axis;
-    simmetry?: boolean;
-}
 
 export class Plane {
     public isTurned: boolean;
@@ -78,17 +49,18 @@ export class Plane {
             simmetry,
             spin,
             isFirst = false,
-            pi
+            pi = true
         }: IPlaneParams,
         event: EventEmitter
     ) {
         this.mesh = this.getMesh({ axis, planeType, depth, position, simmetry });
-        this.axis = axis || this.randomAxis();
+        this.axis = axis || this.randomAxis(planeType);
         this.spin = spin ? 1 : spin === false ? -1 : this.getRandomSpin();
-        this.duration = 500;
+        this.duration = 300;
         this.isFirst = isFirst;
         this.event = event;
-        this.timingFunction = true;
+        this.timingFunction = false;
+        this.pi = pi;
 
         this.params = {
             axis,
@@ -104,17 +76,19 @@ export class Plane {
         this.t0 = this.t0 || time;
 
         const timeFraction = (time - this.t0) / this.duration;
-        if (timeFraction > 1) {
-            if (!this.isTurned) {
-                this.event.emit('turned');
-                this.isTurned = true;
-            }
+        if (timeFraction > 1 && !this.isTurned) {
+            this.event.emit('turned', new Plane({
+                ...getParamsById(),
+                isFirst: false
+            }, this.event));
+            this.isTurned = true;
         }
-        if (!this.isFirst) {
-            this.mesh.rotation[this.axis] = 
-                (this.pi ? Math.PI : this.spin > 0 ? Math.PI / 2 : 3 * Math.PI / 2) *
-                (this.timingFunction ? this.easeInExpo(timeFraction) : this.easeOutExpo(timeFraction));
+        if (this.isFirst) {
+            return;
         }
+        this.mesh.rotation[this.axis] = 
+            (this.pi ? Math.PI : this.spin > 0 ? Math.PI / 2 : -1 * Math.PI / 2) *
+            (this.timingFunction ? this.easeInExpo(timeFraction) : this.easeOutExpo(timeFraction));
     }
 
     protected easeInExpo(pos: number) {
@@ -129,12 +103,21 @@ export class Plane {
         return (Math.random() * 2 - 1) > 0 ? 1 : -1;
     }
 
-    protected randomAxis(): Axis {
+    protected randomAxis(planeType: PlaneType): Axis {
         const MIN = 1;
-        const MAX = 4;
-        const rand = Math.floor(MIN + Math.random() * (MAX + 1 - MIN));
-        return rand === 1 ? Axis.X :
-            (rand === 2) ? Axis.Y : Axis.Z
+        const MAX = 3;
+        let rand: number;
+        if (planeType === PlaneType.XY) {
+            rand = Math.floor(MIN + Math.random() * (MAX + 1 - MIN));
+            return rand === 1 ? Axis.X : Axis.Z;
+        }
+        if (planeType === PlaneType.YZ) {
+            rand = Math.floor(MIN + Math.random() * (MAX + 1 - MIN));
+            return rand === 1 ? Axis.Z : Axis.Y;
+        }
+
+        rand = Math.floor(MIN + Math.random() * (MAX + 1 - MIN));
+        return rand === 1 ? Axis.X : Axis.Y;
     }
 
     protected getMesh({ planeType, depth, position, simmetry, axis }: IMeshParams): Mesh {

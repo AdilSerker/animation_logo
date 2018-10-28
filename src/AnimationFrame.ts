@@ -1,7 +1,9 @@
 import { EventEmitter } from 'events';
-import { Axis, Plane, PlaneType } from './Plane';
+import { Plane } from './Plane/Plane';
+// import { Axis, PlaneType } from './Plane/types';
 
-import { Group, Scene, Vector2 } from 'three';
+import { Group, Scene } from 'three';
+import { getParamsById } from './Plane/getParamsById';
 
 export class AnimationFrame {
     public event: EventEmitter;
@@ -21,13 +23,8 @@ export class AnimationFrame {
     public update(time: number): void {
         if (!this.squares.length) {
             this.addPlane(new Plane({
-                axis: Axis.Z,
-                depth: -1,
-                isFirst: true,
-                planeType: PlaneType.XY,
-                position: new Vector2(1, 1),
-                simmetry: true,
-                spin: true
+                ...getParamsById(42),
+                isFirst: true
             }, this.event));
         }
         this.squares.forEach(item => {
@@ -38,7 +35,7 @@ export class AnimationFrame {
 
     protected addPlane(plane?: Plane): void {
 
-        if (this.squares.length > 3) {
+        if (this.squares.length > 50) {
             return;
         }
         const planes: Plane[] = plane ? [plane] : [];
