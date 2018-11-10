@@ -3,19 +3,23 @@
   "linterOptions": {
     "interface-over-type-literal": false,
     "no-conditional-assignment": true,
+    "ordered-imports": false,
     "exclude": [
       "config/**/*.js",
       "node_modules/**/*.ts",
-      "coverage/lcov-report/*.js"
+      "coverage/lcov-report/*.js",
+      "src/**/*.ts"
     ]
   },
   "rules": {
     "no-console": false,
-    "no-conditional-assignment": true
+    "no-conditional-assignment": true,
+    "ordered-imports": [false]
   },
   "jsRules": {
     "no-console": false,
-    "no-conditional-assignment": true
+    "no-conditional-assignment": true,
+    "ordered-imports": false
   }
   
 }

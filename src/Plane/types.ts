@@ -1,9 +1,20 @@
-import { Vector2 } from "three";
+import { 
+    // Mesh,
+    Group, 
+    Vector2,
+} from "three";
 
 export enum Axis {
     X = 'x',
     Y = 'y',
     Z = 'z'
+}
+
+export enum Route {
+    F = 'F',
+    L = 'L',
+    R = 'R',
+    B = 'B'
 }
 
 export enum PlaneType {
@@ -13,13 +24,7 @@ export enum PlaneType {
 }
 
 export interface IPlaneParams {
-    planeType: PlaneType;
-    depth: number;
-    position: Vector2;
-    pi?: boolean;
-    axis?: Axis;
-    simmetry?: boolean;
-    spin?: boolean;
+    square: Group
     isFirst?: boolean
 }
 
