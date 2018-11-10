@@ -1,6 +1,6 @@
 import { 
     // Mesh,
-    Group, 
+    // Group, 
     Vector2,
 } from "three";
 
@@ -17,6 +17,19 @@ export enum Route {
     B = 'B'
 }
 
+export enum Edge {
+    edgeL = 'edgeL',
+    edgeB = 'edgeB',
+    edgeR = 'edgeR',
+    edgeF = 'edgeF'
+}
+
+export type RotationParams =  {
+    axis: string,
+    edge: Edge,
+    angle: number
+}
+
 export enum PlaneType {
     XY = 'xy',
     XZ = 'xz',
@@ -25,7 +38,7 @@ export enum PlaneType {
 
 export interface IPlaneParams {
     id: number;
-    square: Group
+    square: number;
     isFirst?: boolean
 }
 

@@ -74,7 +74,7 @@ export const getSquareById = (id?: number): Group => {
     if (id > 32 && id < 41) {
         mesh.rotateX(Math.PI / 2);
         x = id % 2 ? 5 : -5;
-        z = (id > 35 && id < 37) || (id > 38) ? 5 : -5;
+        z = (id > 34 && id < 37) || (id > 38) ? 5 : -5;
         L.position.set(id % 2 ? -10 : 0, y, z);
         B.position.set(5, 0, 5);
         R.position.set(5,0, -5);

@@ -1,15 +1,16 @@
 import { EventEmitter } from 'events';
 import { Plane } from './Plane/Plane';
-// import { Axis, PlaneType } from './Plane/types';
 
 import { Group, Scene } from 'three';
-import { getSquareById } from './Plane/getMeshById';
+
+const ID = 35;
+const END = 17;
 
 function randomInteger(min: number, max: number) {
     var rand = min - 0.5 + Math.random() * (max - min + 1)
     rand = Math.round(rand);
     return rand;
-  }
+}
 
 export class AnimationFrame {
     public event: EventEmitter;
@@ -29,8 +30,8 @@ export class AnimationFrame {
     public update(time: number): void {
         if (!this.squares.length) {          
             const plane = new Plane({
-                id: 42,
-                square: getSquareById(42),
+                id: ID,
+                square: ID,
                 isFirst: true 
             }, this.event);
             this.squares.push(plane);
@@ -45,8 +46,8 @@ export class AnimationFrame {
         const filteredIds = variableIds.filter(item => !this.squares.find(s => s.id === item));
         const endPoint = filteredIds[randomInteger(0, filteredIds.length)];
         const plane = new Plane({
-            id: endPoint,
-            square: getSquareById(planeId)
+            id: END,
+            square: ID
         }, this.event);
         console.log(endPoint);
         

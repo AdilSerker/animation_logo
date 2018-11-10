@@ -9,11 +9,14 @@ import {
 // import { getSquareById } from './getMeshById';
 import { variableIds } from './indexId';
 import { Axis, IPlaneParams, PlaneType } from './types';
+import { getSquareById } from './getMeshById';
+import { getRotationParams } from './getRotationParams';
 
 export class Plane {
     public id: number;
     public square: Group;
     
+    protected squareId: number;
     protected isTurned: boolean;
     protected isFirst: boolean;
     protected event: EventEmitter;
@@ -32,11 +35,12 @@ export class Plane {
         }: IPlaneParams,
         event: EventEmitter
     ) {
-        this.id = id
-        this.square = square;
+        this.id = id;
+        this.squareId = square;
+        this.square = getSquareById(square);
 
-        this.edgeL = square;
-        this.edgeB = square.children[0];
+        this.edgeL = this.square;
+        this.edgeB = this.square.children[0];
         this.edgeR = this.edgeB.children[0];
         this.edgeF = this.edgeR.children[0];
 
@@ -59,7 +63,9 @@ export class Plane {
         if (this.isFirst) {
             return;
         }
-        this.edgeB.rotation['x'] = Math.PI/2 * this.easeOutExpo(timeFraction);
+
+        const { axis, angle, edge } = getRotationParams(this.squareId, this.id);
+        this[edge].rotation[axis] = angle * this.easeOutExpo(timeFraction);
         
     }
 
