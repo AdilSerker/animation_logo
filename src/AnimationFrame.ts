@@ -5,6 +5,12 @@ import { Plane } from './Plane/Plane';
 import { Group, Scene } from 'three';
 import { getSquareById } from './Plane/getMeshById';
 
+function randomInteger(min: number, max: number) {
+    var rand = min - 0.5 + Math.random() * (max - min + 1)
+    rand = Math.round(rand);
+    return rand;
+  }
+
 export class AnimationFrame {
     public event: EventEmitter;
 
@@ -21,29 +27,32 @@ export class AnimationFrame {
     }
 
     public update(time: number): void {
-        if (!this.squares.length) {
-            // const m1 = getSquareById(42);
-            // const m2 = getMeshById(10);
-            const m3 = getSquareById(42);
-            // const plane = new Plane({ square: m1 }, this.event);
-            // const plane2 = new Plane({ mesh: m2, isFirst: true }, this.event);
-            const plane3 = new Plane({ square: m3, isFirst: true }, this.event);
-            this.addPlane(plane3);
-            // this.addPlane(plane2);
-            // this.addPlane(plane3);
+        if (!this.squares.length) {          
+            const plane = new Plane({
+                id: 42,
+                square: getSquareById(42),
+                isFirst: true 
+            }, this.event);
+            this.squares.push(plane);
+            this.group.add(plane.square);
         }
         this.squares.forEach(item => {
-            // tslint:disable-next-line:no-unused-expression
             item.turn(time);
         });
     }
 
-    protected addPlane(plane: Plane): void {
-        if (this.squares.length > 1) {
-            return;
-        }
+    protected addPlane(planeId: number, variableIds: number[]): void {
+        const filteredIds = variableIds.filter(item => !this.squares.find(s => s.id === item));
+        const endPoint = filteredIds[randomInteger(0, filteredIds.length)];
+        const plane = new Plane({
+            id: endPoint,
+            square: getSquareById(planeId)
+        }, this.event);
+        console.log(endPoint);
+        
         this.squares.push(plane);
         this.group.add(plane.square);
     }
 
 }
+

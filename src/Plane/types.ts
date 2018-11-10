@@ -24,6 +24,7 @@ export enum PlaneType {
 }
 
 export interface IPlaneParams {
+    id: number;
     square: Group
     isFirst?: boolean
 }

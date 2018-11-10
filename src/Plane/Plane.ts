@@ -6,13 +6,15 @@ import {
     // Matrix4,
     // Quaternion, 
 } from "three";
-import { getSquareById } from './getMeshById';
+// import { getSquareById } from './getMeshById';
+import { variableIds } from './indexId';
 import { Axis, IPlaneParams, PlaneType } from './types';
 
 export class Plane {
-    public isTurned: boolean;
+    public id: number;
     public square: Group;
-
+    
+    protected isTurned: boolean;
     protected isFirst: boolean;
     protected event: EventEmitter;
     protected duration: number;
@@ -24,11 +26,13 @@ export class Plane {
     protected edgeB: Object3D;
     
     public constructor({
+            id,
             square,
             isFirst = false,
         }: IPlaneParams,
         event: EventEmitter
     ) {
+        this.id = id
         this.square = square;
 
         this.edgeL = square;
@@ -43,18 +47,19 @@ export class Plane {
     }
 
     public turn(time: number): void {
+        if (this.isTurned) {
+            return;
+        }
         this.t0 = this.t0 || time;
         const timeFraction = (time - this.t0) / this.duration;
         if (timeFraction > 1 && !this.isTurned) {
-            this.event.emit('turned', new Plane({
-                square: getSquareById(6)
-            }, this.event));
+            this.event.emit('turned', this.id, variableIds[this.id]);
             this.isTurned = true;
         }
         if (this.isFirst) {
             return;
         }
-        this.edgeB.rotation['x'] = Math.PI/2 * (1 - this.easeOutExpo(timeFraction));
+        this.edgeB.rotation['x'] = Math.PI/2 * this.easeOutExpo(timeFraction);
         
     }
 
