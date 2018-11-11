@@ -37,8 +37,8 @@ export enum PlaneType {
 }
 
 export interface IPlaneParams {
-    id: number;
-    square: number;
+    id: number[];
+    square: number[];
     isFirst?: boolean
 }
 

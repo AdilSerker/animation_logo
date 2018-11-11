@@ -1,131 +1,120 @@
 import { RotationParams, Edge } from "./types";
 
-export const getRotationParams = (id: number, end: number): RotationParams => {
-    if (id < 16) {
-        if (id % 2) {
-            return isOddId(id, end);
+const LEVEL = 0;
+const INDEX = 1;
+
+export const getRotationParams = (id: number[], end: number[]): RotationParams => {
+    console.log('START: ', id);
+    console.log('END: ', end);
+    if (id[LEVEL] === end[LEVEL]) {
+        return equalLevel(id, end);
+    }
+    if ((id[LEVEL] === 0 && end[LEVEL] === 1) || (id[LEVEL] === 1 && end[LEVEL] === 0)) {
+        return zeroLevelUp(id, end);
+    }
+    if (end[LEVEL] === 1.5) {
+        if (id[LEVEL] > 1.5) {
+            return {
+                axis: id[INDEX]%2 ? 'z' : 'x',
+                angle: id[INDEX]%2 ? Math.PI/2 : -Math.PI/2,
+                edge: Edge.edgeF
+            }
+        } else {
+            return {
+                axis: id[INDEX]%2 ? 'z' : 'x',
+                angle: id[INDEX]%2 ? -3*Math.PI/2 : 3*Math.PI/2,
+                edge: Edge.edgeB
+            }
         }
-        if (!(id%2)) {
-            return isEvenId(id, end);
+    }
+    if (id[LEVEL] === 1.5) {
+        return {
+            axis: end[INDEX]%2 ? 'z' : 'x',
+            angle: end[LEVEL] > id[LEVEL] ? 
+                (end[INDEX]%2 ? -Math.PI/2 : Math.PI/2) :
+                (end[INDEX]%2 ? 3*Math.PI/2 : -3*Math.PI/2),
+            edge: end[LEVEL] < id[LEVEL] ?
+                (end[INDEX]%2 ? Edge.edgeR : Edge.edgeB) :
+                (end[INDEX]%2 ? Edge.edgeL : Edge.edgeF)
         }
+    }
+    if (id[INDEX] === end[INDEX]) {
+        
+        return {
+            axis: id[INDEX] < 3 ? 'x' : 'z',
+            angle: (id[INDEX] < 3 ? 1 : -1) * Math.PI,
+            edge: id[LEVEL] < end[LEVEL] ? Edge.edgeB : Edge.edgeF
+        }
+    }
+
+    if (id[LEVEL] === 3.5) {
+        return firstRotation(id, end);
+        
     }
 
     return <RotationParams>{};
 }
 
-const isOddId = (id: number, end: number): RotationParams => {
-    if (((id > 0 && id < 8 || id > 32 && id < 36) && end > 16 && end < 24) ||
-        (id > 8 && id < 16 && end > 1 && end < 9)) {
-        return {
-            axis: id > 32 && id < 36 ? 'z' : 'y',
-            angle: -3*Math.PI/2,
-            edge: Edge.edgeL
-        }
-    }
-    if ((id === 1 && end === 2) || (id === 7 && end === 8) ||
-        (id === 9 && end === 10) || (id === 15 && end === 16)) {
+const equalLevel = (id: number[], end: number[]): RotationParams => {
+    if ((id[LEVEL] === 2 || id[LEVEL] === 3) &&
+    Math.abs(end[INDEX] - id[INDEX]) === 1) {
         return {
             axis: 'y',
-            angle: Math.PI,
-            edge: Edge.edgeR
+            angle: id[INDEX] < end[INDEX] ? -Math.PI/2 : Math.PI/2,
+            edge: id[INDEX] > end[INDEX] ? Edge.edgeR : Edge.edgeL
         }
     }
-    if ((id === 3 && end === 11) || (id === 5 && end === 13)) {
-        return {
-            axis: 'y',
-            angle: 3*Math.PI/2,
-            edge: Edge.edgeR
-        }
+    if (id[LEVEL] === 0) {
+        return zeroLevelRotation(id, end);
     }
-    if ((id === 11 && end === 4) || (id === 13 && end === 6)) {
-        return {
-            axis: 'y',
-            angle: Math.PI/2,
-            edge: Edge.edgeR
-        }
+    return {
+        axis: 'y',
+        angle: (Math.abs(end[INDEX] - id[INDEX]) > 1 || 
+                (id[INDEX] === 2 && end[INDEX] === 3) ||
+                (id[INDEX] === 3 && end[INDEX] === 2)) ? 
+            (id[INDEX] > end[INDEX] ? -3*Math.PI/2 : 3*Math.PI/2) :
+            (id[INDEX] > end[INDEX] ? -Math.PI : Math.PI),
+        edge: id[INDEX] < end[INDEX] ? Edge.edgeR : Edge.edgeL
     }
-    if (((id < 8 && id > 10) || id < 14 || id === 35) && id - 2 === end) {
-        return {
-            axis: id < 10 ? 'x' : 'z',
-            angle: Math.PI,
-            edge: Edge.edgeF
-        }
-    }
-    if (((id < 8 && id > 10) || id < 14 || id === 33) && id + 2 === end) {
-        return {
-            axis: id < 10 ? 'x' : 'z',
-            angle: id < 10 ? Math.PI : -Math.PI,
-            edge: Edge.edgeB
-        }
-    }
-    
-    if (id === 7 && end === 39 || id === 15 && end === 40 || id === 9 && end === 41) {
-        return {
-            axis: end === 39 ? 'x' : 'z',
-            angle: id === 7 ? 3*Math.PI/2 : -3*Math.PI/2,
-            edge: Edge.edgeB
-        };
-    }
-
-    if (id === 1 && end === 35 ||
-        id === 9 && end === 36 ||
-        id === 15 && end === 42 ||
-        id === 33 && end === 27) {
-        return {
-            axis: end % 2 ? 'x' : 'z',
-            angle: -3*Math.PI/2,
-            edge: Edge.edgeF
-        };
-    }
-
-
-    return <RotationParams>{};
 }
 
-const isEvenId = (id: number, end: number): RotationParams => {
-    if (end > 25 && end < 33 && end % 2) {
-        return {
-            axis: 'y',
-            angle: 3*Math.PI/2,
-            edge: Edge.edgeR
-        }
+const zeroLevelRotation = (id: number[], end: number[]): RotationParams => {
+    return {
+        axis: Math.abs(id[INDEX] - end[INDEX]) > 1 ? 'x' : 'z',
+        angle: id[INDEX] - end[INDEX] > 0 ? Math.PI : -Math.PI, 
+        edge: Math.abs(id[INDEX] - end[INDEX]) > 1 ?
+            (id[INDEX] - end[INDEX] > 0 ? Edge.edgeB : Edge.edgeF) :
+            (id[INDEX] - end[INDEX] > 0 ? Edge.edgeL : Edge.edgeR)
     }
-    if (end === 9 || end === 12 || end === 14 || end === 15) {
-        return {
-            axis: 'y',
-            angle: -3*Math.PI/2,
-            edge: Edge.edgeL
-        }
-    }
+}
 
-    if (id + 2 === end) {
-        return {
-            axis: 'x',
-            angle: Math.PI,
-            edge: Edge.edgeB
-        }
+const firstRotation = (id: number[], end: number[]): RotationParams => {
+    return {
+        axis: end[INDEX] > 2 ? 'z' : 'x',
+        angle: id[LEVEL] > end[LEVEL]
+            ? ((end[INDEX] > 2) ? Math.PI/2 : -Math.PI/2)
+            : ((end[INDEX] > 2) ? -3*Math.PI/2 : 3*Math.PI/2),
+        edge: id[LEVEL] > end[LEVEL] && end[INDEX] === 2
+            ? Edge.edgeF
+            : id[LEVEL] > end[LEVEL] && end[INDEX] === 3 
+                ? Edge.edgeL
+                : id[LEVEL] < end[LEVEL] && end[INDEX] === 2
+                    ? Edge.edgeB
+                    : Edge.edgeR
     }
+}
 
-    if (end === 39 || end === 40) {
+const zeroLevelUp = (id: number[], end: number[]): RotationParams => {
+    if (id[LEVEL] < end[LEVEL]) {
         return {
-            axis: 'x',
-            angle: 3*Math.PI/2,
-            edge: Edge.edgeB
+            axis: end[INDEX] < 3 ? 'x' : 'z',
+            angle: end[INDEX] < 3 ? 3*Math.PI/2 : -3*Math.PI/2,
+            edge: end[INDEX] < 3 ? Edge.edgeB : Edge.edgeR
         }
-    }
-
-    if (id - 2 === end) {
+    } else {
         return {
-            axis: 'x',
-            angle: Math.PI,
-            edge: Edge.edgeF
-        }
-    }
-
-    if (end === 35 || end === 36) {
-        return {
-            axis: 'x',
-            angle: 3*Math.PI/2,
+            axis: id[INDEX] < 3 ? 'x' : 'z',
+            angle: id[INDEX] < 3 ? -3*Math.PI/2 : 3*Math.PI/2,
             edge: Edge.edgeF
         }
     }
@@ -133,6 +122,4 @@ const isEvenId = (id: number, end: number): RotationParams => {
     return <RotationParams>{};
 }
 
-// const getParams = (axis: string, angle: number, edge: Edge): RotationParams => {
-//     return { axis, angle, edge };
-// }
+window['getRotationParams'] = getRotationParams;

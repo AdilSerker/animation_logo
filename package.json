@@ -12,7 +12,7 @@
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
-    "test": "react-scripts-ts test --env=jsdom",
+    "test": "SM_ENV=test ./node_modules/.bin/jest",
     "eject": "react-scripts-ts eject"
   },
   "devDependencies": {
@@ -20,6 +20,7 @@
     "@types/node": "^10.9.4",
     "@types/react": "^16.4.14",
     "@types/react-dom": "^16.0.7",
+    "jest": "^23.6.0",
     "typescript": "^3.0.3"
   }
 }
