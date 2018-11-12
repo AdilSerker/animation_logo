@@ -53,10 +53,10 @@ export class Canvas {
         const time = (Date.now() - this.timeStart);
         this.frame.update(time);
 
-        if(time > 2500) {
-            const tFunc = this.easeOutExpo((time-2500)/5500);
-            this.lightObject.rotation.y = -Math.PI * tFunc;
-        }
+        // if(time > 2500) {
+        //     const tFunc = this.easeOutExpo((time-2500)/5500);
+        //     this.lightObject.rotation.y = -Math.PI * tFunc;
+        // }
         // console.log(this.light.position);
         this.renderer.render(this.scene, this.camera);
     }
@@ -82,7 +82,7 @@ export class Canvas {
         this.lightObject = new Group;
         this.light = new SpotLight('#fff', 1);
         this.lightObject.add(this.light);
-        this.light.position.set(-50, 40, 50);
+        this.light.position.set(50, 40, -50);
         this.scene.add(this.lightObject);
     }
 

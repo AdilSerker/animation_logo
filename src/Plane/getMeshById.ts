@@ -27,7 +27,7 @@ export const getSquareById = (id: number[]): Group => {
     let z: number;
     const y = Level[id[0]];
 
-    const geometry = new PlaneGeometry(10, 10);
+    const geometry = new PlaneGeometry(10.2, 10.2);
     const material = new MeshPhysicalMaterial(GREEN_MATERIAL);
     const mesh = new Mesh(geometry, material);
     const F = new Group();
