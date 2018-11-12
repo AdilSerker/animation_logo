@@ -41,7 +41,9 @@ export const getRotationParams = (id: number[], end: number[]): RotationParams =
         
         return {
             axis: id[INDEX] < 3 ? 'x' : 'z',
-            angle: (id[INDEX] < 3 ? 1 : -1) * Math.PI,
+            angle: id[LEVEL] < end[LEVEL] ? 
+                (id[INDEX] < 3 ? Math.PI : -Math.PI) :
+                (id[INDEX] < 3 ? -Math.PI : Math.PI),
             edge: id[LEVEL] < end[LEVEL] ? Edge.edgeB : Edge.edgeF
         }
     }

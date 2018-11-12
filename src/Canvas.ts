@@ -102,7 +102,7 @@ export class Canvas {
 
         this.camera = new OrthographicCamera(width/-2, width/2, height/2, height/-2, -20, 100);
         this.camera.position.set(10, 7.5, 10);
-        this.camera.zoom = 5;
+        this.camera.zoom = 3;
         this.camera.lookAt(0, 0, 0);
     }
 
