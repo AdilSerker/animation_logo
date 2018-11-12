@@ -82,7 +82,7 @@ export class Canvas {
         this.lightObject = new Group;
         this.light = new SpotLight('#fff', 1);
         this.lightObject.add(this.light);
-        this.light.position.set(-50, 50, 50);
+        this.light.position.set(-50, 40, 50);
         this.scene.add(this.lightObject);
     }
 
