@@ -57,7 +57,7 @@ export class AnimationFrame {
     
         let params = { id: endPoint, square: planeId, emmitable: true };
         if (!endPoint) {
-            this.addRandomPlane(true);
+            this.addRandomPlane(true, 150);
             return;
         }
         this.addRandomPlane(false);
@@ -67,12 +67,12 @@ export class AnimationFrame {
         this.group.add(plane.square);
     }
 
-    public addRandomPlane(emmitable: boolean): void {
+    public addRandomPlane(emmitable: boolean, duration: number = 900): void {
         let params: IPlaneParams = {
+            duration,
+            emmitable,
             id: [],
             square: [],
-            emmitable: emmitable,
-            duration: 900
         };
         for(let plane of this.squares) {
             
