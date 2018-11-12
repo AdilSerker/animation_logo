@@ -39,7 +39,9 @@ export enum PlaneType {
 export interface IPlaneParams {
     id: number[];
     square: number[];
-    isFirst?: boolean
+    isFirst?: boolean;
+    emmitable?: boolean;
+    duration?: number;
 }
 
 export interface IMeshParams {

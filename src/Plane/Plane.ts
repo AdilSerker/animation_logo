@@ -13,7 +13,14 @@ import { getSquareById } from './getMeshById';
 import { getRotationParams } from './getRotationParams';
 import { variableIds } from './indexId';
 
+// function randomInteger(min: number, max: number) {
+//     var rand = min - 0.5 + Math.random() * (max - min + 1)
+//     rand = Math.round(rand);
+//     return rand;
+// }
 export class Plane {
+    public static count: number = 0;
+
     public id: number[];
     public square: Group;
     
@@ -30,29 +37,33 @@ export class Plane {
     protected edgeB: Object3D;
 
     protected rotationParams: RotationParams;
+    protected emmitable: boolean;
     
     public constructor({
             id,
             square,
             isFirst = false,
+            emmitable = false,
+            duration = 150
         }: IPlaneParams,
         event: EventEmitter
     ) {
-        console.log('costructor start');
         this.id = id;
         this.squareId = square;
         this.square = getSquareById(square);
         this.rotationParams = getRotationParams(square, id);
-        console.log('rotate params', this.rotationParams);
         this.edgeL = this.square;
         this.edgeB = this.square.children[0];
         this.edgeR = this.edgeB.children[0];
         this.edgeF = this.edgeR.children[0];
 
-        this.duration = 2000;
+        this.duration = !isFirst ?
+            duration : 
+            1000;
         this.isFirst = isFirst;
         this.event = event;
-        console.log('costructor stop');
+
+        this.emmitable = emmitable;
     }
 
     public turn(time: number): void {
@@ -63,8 +74,7 @@ export class Plane {
         const timeFraction = (time - this.t0) / this.duration;
         if (timeFraction > 1) {
 
-            this.event.emit('turned', this.id, variableIds(this.id));
-
+            if (this.emmitable) this.event.emit('turned', this.id, variableIds(this.id));
             this.isTurned = true;
         }
         if (this.isFirst) {

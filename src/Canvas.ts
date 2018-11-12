@@ -2,7 +2,8 @@ import {
     AmbientLight,
     Color,
     DirectionalLight,
-    GridHelper,
+    // GridHelper,
+    Group,
     OrthographicCamera,
     Scene,
     SpotLight,
@@ -21,6 +22,7 @@ export class Canvas {
     protected camera: OrthographicCamera;
     protected scene: Scene;
     protected light: DirectionalLight | SpotLight;
+    protected lightObject: Group;
     protected renderer: WebGLRenderer;
 
     protected frame: AnimationFrame;
@@ -50,12 +52,18 @@ export class Canvas {
         this.camera.lookAt(0, 0, 0);
         const time = (Date.now() - this.timeStart);
         this.frame.update(time);
-        
+
+        if(time > 2500) {
+            const tFunc = this.easeOutExpo((time-2500)/5500);
+            this.lightObject.rotation.y = -Math.PI * tFunc;
+        }
+        // console.log(this.light.position);
         this.renderer.render(this.scene, this.camera);
     }
 
+
     protected easeOutExpo(t: number) {
-        return (t === 1) ? 1 : -Math.pow(2, -10 * t) + 1;
+        return (t === 1) ? 1 : Math.pow(2, -10 * t) + 1;
     }
 
     protected createScene() {
@@ -63,17 +71,19 @@ export class Canvas {
         this.scene.add(new AmbientLight('#F4F4F4'));
         this.scene.background = new Color('#F4F4F4');
 
-        const size = 20;
-        const divisions = 20;
+        // const size = 20;
+        // const divisions = 20;
 
-        const gridHelper = new GridHelper( size, divisions );
-        this.scene.add( gridHelper );
+        // const gridHelper = new GridHelper( size, divisions );
+        // this.scene.add( gridHelper );
     }
 
     protected createLight() {
+        this.lightObject = new Group;
         this.light = new SpotLight('#fff', 1);
-        this.light.position.set(30, 25, -30);
-        this.scene.add(this.light);
+        this.lightObject.add(this.light);
+        this.light.position.set(-50, 50, 50);
+        this.scene.add(this.lightObject);
     }
 
     protected createRenderer() {
@@ -91,8 +101,8 @@ export class Canvas {
         const { width, height } = this.canvas;
 
         this.camera = new OrthographicCamera(width/-2, width/2, height/2, height/-2, -20, 100);
-        this.camera.position.set(10, 5, 10);
-        this.camera.zoom = 10;
+        this.camera.position.set(10, 7.5, 10);
+        this.camera.zoom = 5;
         this.camera.lookAt(0, 0, 0);
     }
 

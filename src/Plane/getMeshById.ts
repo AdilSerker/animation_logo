@@ -8,7 +8,7 @@ import {
 
 const GREEN_MATERIAL = {
     clearCoat: 0,
-    color: 0x519b0b,
+    color: 0x177744,
     metalness: 0,
     reflectivity: 0,
     roughness: 1,

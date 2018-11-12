@@ -4,8 +4,7 @@ const LEVEL = 0;
 const INDEX = 1;
 
 export const getRotationParams = (id: number[], end: number[]): RotationParams => {
-    console.log('START: ', id);
-    console.log('END: ', end);
+
     if (id[LEVEL] === end[LEVEL]) {
         return equalLevel(id, end);
     }
