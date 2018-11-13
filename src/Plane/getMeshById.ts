@@ -30,6 +30,8 @@ export const getSquareById = (id: number[]): Group => {
     const geometry = new PlaneGeometry(10.2, 10.2);
     const material = new MeshPhysicalMaterial(GREEN_MATERIAL);
     const mesh = new Mesh(geometry, material);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     const F = new Group();
     const R = new Group();
     const B = new Group();

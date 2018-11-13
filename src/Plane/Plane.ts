@@ -12,9 +12,9 @@ export class Plane {
 
     public id: number[];
     public square: Group;
+    public isTurned: boolean;
     
     protected squareId: number[];
-    protected isTurned: boolean;
     protected isFirst: boolean;
     protected event: EventEmitter;
     protected duration: number;
@@ -36,10 +36,11 @@ export class Plane {
             square,
             isFirst = false,
             emmitable = false,
-            duration = 135
+            duration
         }: IPlaneParams,
         event: EventEmitter
     ) {
+
         this.id = id;
         this.squareId = square;
         this.square = getSquareById(square);
@@ -52,13 +53,12 @@ export class Plane {
         this.mesh = this.edgeF.children[0] as Mesh;
         this.material = this.mesh.material as MeshPhysicalMaterial;
 
-        this.duration = !isFirst ?
-            duration : 
-            2000;
+        this.duration = duration;
         this.isFirst = isFirst;
         this.event = event;
 
         this.emmitable = emmitable;
+
     }
 
     public turn(time: number): void {
@@ -66,18 +66,17 @@ export class Plane {
             return;
         }
         this.t0 = this.t0 || time;
-        const timeFraction = (time - this.t0) / this.duration;
+        const timeFraction = (time - this.t0) / (this.isFirst ? 1700 : this.duration);
         if (timeFraction > 1) {
-            // this.material.transparent = false;
-            // this.material.opacity = 1;
-            if (this.emmitable) this.event.emit('turned', this.id, variableIds(this.id));
+            if (this.emmitable) this.event.emit('turned', this.id, variableIds(this.id), this.duration);
             this.isTurned = true;
+            this.material.opacity = 1;
             return;
         }
         if (this.isFirst) {
+            this.material.transparent = true;
+            this.material.opacity = this.coswave(timeFraction);
             return;
-            // this.material.transparent = true;
-            // this.material.opacity = this.coswave(timeFraction);
         } else {
             const { axis, angle, edge } = this.rotationParams;
             this[edge].rotation[axis] = angle * this.easeOutExpo(timeFraction);
@@ -89,7 +88,7 @@ export class Plane {
     }
 
     protected coswave(time: number) {
-        return (Math.cos(11 * time - 3.2) + 1)/2;
+        return (Math.cos(10 * time - 4.2) + 1)/2;
     }
 
 }

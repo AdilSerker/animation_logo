@@ -5,10 +5,12 @@ import { Group, Scene } from 'three';
 import { variableIds } from './Plane/indexId';
 import { IPlaneParams } from './Plane/types';
 import { randomInteger } from './utils/randomInteger';
+import { shuffle } from './utils/shuffle';
 
 const ID = [3.5, 0];
 // const ID = [3,2];
 // const END = [2,2];
+
 
 export class AnimationFrame {
     public event: EventEmitter;
@@ -21,8 +23,11 @@ export class AnimationFrame {
         this.event.on('turned', this.addPlane.bind(this));
         this.squares = [];
         this.group = new Group();
-        
         scene.add(this.group);
+
+        // setInterval(() => {
+        //     this.addRandomPlane(false, randomInteger(150, 800));
+        // }, 150);
     }
 
     public update(time: number): void {
@@ -31,7 +36,8 @@ export class AnimationFrame {
                 id: ID,
                 square: ID,
                 isFirst: true,
-                emmitable: true
+                emmitable: true,
+                duration: 200
             }, this.event);
             this.squares.push(plane);
             this.group.add(plane.square);
@@ -42,7 +48,7 @@ export class AnimationFrame {
 
     }
 
-    protected addPlane(planeId: number[], variableId: number[][]): void {
+    protected addPlane(planeId: number[], variableId: number[][], duration: number): void {
         // if (this.squares.length > 1) return;
         let filteredIds = variableId.filter(item => 
             !this.squares.find(s => s.id[0] === item[0] && s.id[1] === item[1])
@@ -52,9 +58,9 @@ export class AnimationFrame {
     
         let endPoint = filteredIds[index];
     
-        let params: IPlaneParams = { id: endPoint, square: planeId, emmitable: true };
+        let params: IPlaneParams = { id: endPoint, square: planeId, emmitable: true, duration };
         if (!endPoint) {
-            this.addRandomPlane(true, 135);
+            this.addRandomPlane(true, duration);
             return;
         }
         // params = { id: END, square: ID, emmitable: false, duration: 900 };
@@ -62,16 +68,17 @@ export class AnimationFrame {
         this.squares.push(plane);
         this.group.add(plane.square);
         
-        Math.random() > 0.2 && this.addRandomPlane(false);
+        this.addRandomPlane(false, 800);
     }
 
-    public addRandomPlane(emmitable: boolean, duration: number = 810): void {
+    public addRandomPlane(emmitable: boolean, duration: number): void {
         let params: IPlaneParams = {
             duration,
             emmitable,
             id: [],
             square: [],
         };
+        shuffle(this.squares);
         for(let plane of this.squares) {
             
             let filteredIds = variableIds(plane.id).filter(item => 

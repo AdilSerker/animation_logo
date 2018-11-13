@@ -5,6 +5,7 @@ import {
     // GridHelper,
     Group,
     OrthographicCamera,
+    // PCFSoftShadowMap,
     Scene,
     SpotLight,
     Vector3,
@@ -82,7 +83,8 @@ export class Canvas {
         this.lightObject = new Group;
         this.light = new SpotLight('#fff', 1);
         this.lightObject.add(this.light);
-        this.light.position.set(50, 40, -50);
+        this.light.position.set(500, 130, -500);
+        
         this.scene.add(this.lightObject);
     }
 
@@ -95,6 +97,8 @@ export class Canvas {
 
         this.renderer.gammaInput = true;
         this.renderer.gammaOutput = true; 
+
+        // this.renderer.shadowMapType = PCFSoftShadowMap;
     }
 
     protected createCamera() {
@@ -102,7 +106,7 @@ export class Canvas {
 
         this.camera = new OrthographicCamera(width/-2, width/2, height/2, height/-2, -20, 100);
         this.camera.position.set(10, 7.5, 10);
-        this.camera.zoom = 3;
+        this.camera.zoom = 5;
         this.camera.lookAt(0, 0, 0);
     }
 

@@ -41,7 +41,7 @@ export interface IPlaneParams {
     square: number[];
     isFirst?: boolean;
     emmitable?: boolean;
-    duration?: number;
+    duration: number;
 }
 
 export interface IMeshParams {
