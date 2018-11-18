@@ -4,7 +4,7 @@ import { Group, Mesh, MeshPhysicalMaterial, Object3D } from "three";
 import { IPlaneParams, RotationParams } from './types';
 import { getSquareById } from './getMeshById';
 import { getRotationParams } from './getRotationParams';
-import { variableIds } from './indexId';
+// import { variableIds } from './indexId';
 // import { randomInteger } from 'src/utils/randomInteger';
 
 export class Plane {
@@ -62,35 +62,44 @@ export class Plane {
     }
 
     public turn(time: number): void {
+        if (!this.t0) {
+            this.t0 = time;
+        }
         if (this.isTurned) {
             return;
         }
-        this.t0 = this.t0 || time;
-        const timeFraction = (time - this.t0) / (this.isFirst ? 1700 : this.duration);
-        if (timeFraction > 1) {
-            if (this.emmitable) this.event.emit('turned', this.id, variableIds(this.id), this.duration);
-            this.isTurned = true;
-            this.material.opacity = 1;
-            return;
-        }
+
+        const timeFraction = time - this.t0;
         if (this.isFirst) {
             this.material.transparent = true;
             this.material.opacity = this.coswave(timeFraction);
-            return;
+            if(timeFraction > 2000) {
+                this.isTurned = true;
+                this.event.emit('turned', this.id, this.duration);
+                this.material.opacity = 1;
+            }
+
         } else {
             const { axis, angle, edge } = this.rotationParams;
-            this[edge].rotation[axis] = angle * this.easeOutExpo(timeFraction);
-        }
-    }
 
-    protected easeOutExpo(pos: number) {
-        return (pos===1) ? 1 : -Math.pow(2, -10 * pos) + 1;
+            let currentAngle: number;
+            this[edge].rotation[axis] = currentAngle = this.easeOutExpo(timeFraction, 0, angle, this.duration);
+
+            if (Math.abs(currentAngle) > Math.abs(Number(angle.toFixed(2)))) {
+                this.emmitable && this.event.emit('turned', this.id, this.duration);
+                this.material.opacity = 1;
+                this.isTurned = true;
+            }
+        }
+
     }
 
     protected coswave(time: number) {
-        return (Math.cos(10 * time - 4.2) + 1)/2;
+        return (Math.cos(time/50) + 1)/2;
+    }
+
+    protected easeOutExpo(t: number, b: number, c: number, d: number) {
+        return c * ( -Math.pow( 2, -10 * t/d ) + 1 ) + b;
     }
 
 }
-
-// (cos(11x-3.2)+1)/2;

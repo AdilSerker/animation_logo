@@ -50,9 +50,10 @@ export class Canvas {
         if (!this.timeStart) {
             this.timeStart = Date.now();
         }
-        this.camera.lookAt(0, 0, 0);
-        const time = (Date.now() - this.timeStart);
-        this.frame.update(time);
+        // this.camera.lookAt(0, 0, 0);
+        // const time = (Date.now() - this.timeStart);
+        // const val = this.easeOutExpo(time, 0, 1, 1);
+        this.frame.update(performance.now());
 
         // if(time > 2500) {
         //     const tFunc = this.easeOutExpo((time-2500)/5500);
@@ -62,9 +63,8 @@ export class Canvas {
         this.renderer.render(this.scene, this.camera);
     }
 
-
-    protected easeOutExpo(t: number) {
-        return (t === 1) ? 1 : Math.pow(2, -10 * t) + 1;
+    protected easeOutExpo(pos: number) {
+        return (pos===1) ? 1 : -Math.pow(2, -10 * pos) + 1;
     }
 
     protected createScene() {

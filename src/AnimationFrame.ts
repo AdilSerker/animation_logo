@@ -8,8 +8,6 @@ import { randomInteger } from './utils/randomInteger';
 import { shuffle } from './utils/shuffle';
 
 const ID = [3.5, 0];
-// const ID = [3,2];
-// const END = [2,2];
 
 
 export class AnimationFrame {
@@ -24,10 +22,6 @@ export class AnimationFrame {
         this.squares = [];
         this.group = new Group();
         scene.add(this.group);
-
-        // setInterval(() => {
-        //     this.addRandomPlane(false, randomInteger(150, 800));
-        // }, 150);
     }
 
     public update(time: number): void {
@@ -37,7 +31,7 @@ export class AnimationFrame {
                 square: ID,
                 isFirst: true,
                 emmitable: true,
-                duration: 200
+                duration: 185
             }, this.event);
             this.squares.push(plane);
             this.group.add(plane.square);
@@ -48,9 +42,9 @@ export class AnimationFrame {
 
     }
 
-    protected addPlane(planeId: number[], variableId: number[][], duration: number): void {
-        // if (this.squares.length > 1) return;
-        let filteredIds = variableId.filter(item => 
+    protected addPlane(planeId: number[], duration: number): void {
+
+        let filteredIds = variableIds(planeId).filter(item => 
             !this.squares.find(s => s.id[0] === item[0] && s.id[1] === item[1])
         );
     
@@ -68,7 +62,8 @@ export class AnimationFrame {
         this.squares.push(plane);
         this.group.add(plane.square);
         
-        this.addRandomPlane(false, 800);
+        // this.squares.length%2 && this.addRandomPlane(false, randomInteger(334, 490));
+        this.squares.length > 2 && this.addRandomPlane(false, randomInteger(717, 1035));
     }
 
     public addRandomPlane(emmitable: boolean, duration: number): void {
@@ -80,7 +75,7 @@ export class AnimationFrame {
         };
         shuffle(this.squares);
         for(let plane of this.squares) {
-            
+            if (!plane.isTurned) continue;
             let filteredIds = variableIds(plane.id).filter(item => 
                 !this.squares.find(s => s.id[0] === item[0] && s.id[1] === item[1])
             );   
