@@ -63,7 +63,9 @@ export class AnimationFrame {
         this.group.add(plane.square);
         
         // this.squares.length%2 && this.addRandomPlane(false, randomInteger(334, 490));
-        this.squares.length > 2 && this.addRandomPlane(false, randomInteger(717, 1035));
+        setTimeout(() => {
+            this.addRandomPlane(false, randomInteger(417, 835));
+        }, randomInteger(517, 635));
     }
 
     public addRandomPlane(emmitable: boolean, duration: number): void {
